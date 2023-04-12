@@ -288,6 +288,8 @@ class InformationViewController: UIViewController {
                 topDescriptionLabel.text = "Detailed Hourly Forecast"
                 bottomDescriptionLabel.text = "Get in - depth weather information."
 
+            case 1.25:
+                Environment.sceneDelegare?.setWeatherController()
             default:
                 break
         }

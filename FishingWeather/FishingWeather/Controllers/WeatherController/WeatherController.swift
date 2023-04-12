@@ -11,6 +11,12 @@ import Combine
 
 class WeatherController: UIViewController {
 
+    lazy var scrollView: UIScrollView = {
+        let view = UIScrollView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     lazy var mainView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -43,6 +49,8 @@ class WeatherController: UIViewController {
     
     lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView()
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.dataSource = self
         return collectionView
     }()
     
@@ -79,7 +87,8 @@ class WeatherController: UIViewController {
     }
     
     private func layoutElements() {
-        view.addSubview(mainView)
+        view.addSubview(scrollView)
+        scrollView.addSubview(mainView)
         mainView.addSubview(titleLabel)
         mainView.addSubviews(leftTopButton, rightTopButton)
         
@@ -136,6 +145,7 @@ class WeatherController: UIViewController {
         viewModel.$weatherList.sink { [weak self] weatherList in
             guard let self else { return }
             self.weatherModel = weatherList
+            
         }.store(in: &cancellables)
         
         viewModel.$navTitle.sink { [weak self] text in
@@ -154,4 +164,17 @@ extension WeatherController: CLLocationManagerDelegate {
         print("locations = \(locValue.latitude) \(locValue.longitude)")
         viewModel.fetchWeather(lat: locValue.latitude, lon: locValue.longitude)
     }
+}
+
+extension WeatherController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        guard let weatherModel else { return 0}
+        return weatherModel.listWeatherModel.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        return UICollectionViewCell()
+    }
+    
+    
 }
