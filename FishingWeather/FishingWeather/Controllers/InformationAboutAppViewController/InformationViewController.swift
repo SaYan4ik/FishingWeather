@@ -70,6 +70,28 @@ class InformationViewController: UIViewController {
         return view
     }()
     
+    lazy var topDescriptionLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 28, weight: .bold)
+        label.textColor = .black
+        label.textAlignment = .center
+        label.text = "Detailed Hourly Forecast"
+        return label
+    }()
+    
+    lazy var bottomDescriptionLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        label.textAlignment = .center
+        label.textColor = .systemGray2
+        label.text = "Get in - depth weather information."
+        return label
+    }()
+    
     private var heightConstraint: NSLayoutConstraint?
     private var currentSelectedIndex = 0 {
         didSet {
@@ -108,7 +130,11 @@ class InformationViewController: UIViewController {
             circleView,
             nextButton
         )
-                
+        self.descriptionView.addSubviews(
+            topDescriptionLabel,
+            bottomDescriptionLabel
+        )
+        
         layoutMainView()
         layoutSkipButton()
         layoutDescriptionView()
@@ -117,6 +143,7 @@ class InformationViewController: UIViewController {
         showIndicator()
         layoutNextButton()
         layoutCircleView()
+        layoutDescriptionLabels()
         
         
     }
@@ -181,8 +208,21 @@ class InformationViewController: UIViewController {
             circleView.heightAnchor.constraint(equalToConstant: 80),
             circleView.widthAnchor.constraint(equalToConstant: 80)
         ])
+    }
+    
+    private func layoutDescriptionLabels() {
+        NSLayoutConstraint.activate([
+            bottomDescriptionLabel.bottomAnchor.constraint(equalTo: self.nextButton.topAnchor, constant: -20),
+            bottomDescriptionLabel.leadingAnchor.constraint(equalTo: self.descriptionView.leadingAnchor, constant: 16),
+            bottomDescriptionLabel.trailingAnchor.constraint(equalTo: self.descriptionView.trailingAnchor, constant: -16),
+
+        ])
         
-        
+        NSLayoutConstraint.activate([
+            topDescriptionLabel.bottomAnchor.constraint(equalTo: self.bottomDescriptionLabel.topAnchor, constant: -20),
+            topDescriptionLabel.leadingAnchor.constraint(equalTo: self.descriptionView.leadingAnchor, constant: 16),
+            topDescriptionLabel.trailingAnchor.constraint(equalTo: self.descriptionView.trailingAnchor, constant: -16),
+        ])
     }
     
     private func setViewColor() {
@@ -225,20 +265,31 @@ class InformationViewController: UIViewController {
         circleView.progress = progress
         
         switch progress {
-        case 0.25:
-            descriptionImageView.image = UIImage(named: "Bitmap")
-            currentSelectedIndex = 0
-        case 0.50:
-            descriptionImageView.image = UIImage(named: "Bitmap 1")
-            currentSelectedIndex = 1
-        case 0.75:
-            descriptionImageView.image = UIImage(named: "Bitmap 2")
-            currentSelectedIndex = 2
-        case 1.00:
-            descriptionImageView.image = UIImage(named: "Bitmap 3")
-            currentSelectedIndex = 3
-        default:
-            break
+            case 0.25:
+                descriptionImageView.image = UIImage(named: "Bitmap")
+                currentSelectedIndex = 0
+                topDescriptionLabel.text = "Detailed Hourly Forecast"
+                bottomDescriptionLabel.text = "Get in - depth weather information."
+            case 0.50:
+                descriptionImageView.image = UIImage(named: "Bitmap 1")
+                currentSelectedIndex = 1
+                topDescriptionLabel.text = "Real-Time Weather Map"
+                bottomDescriptionLabel.text = "Watch the progress of the precipitation to stay informed"
+
+            case 0.75:
+                descriptionImageView.image = UIImage(named: "Bitmap 2")
+                currentSelectedIndex = 2
+                topDescriptionLabel.text = "Weather Around the World"
+                bottomDescriptionLabel.text = "Add any location you want and swipe easily to chnage."
+
+            case 1.00:
+                descriptionImageView.image = UIImage(named: "Bitmap 3")
+                currentSelectedIndex = 3
+                topDescriptionLabel.text = "Detailed Hourly Forecast"
+                bottomDescriptionLabel.text = "Get in - depth weather information."
+
+            default:
+                break
         }
     }
     
