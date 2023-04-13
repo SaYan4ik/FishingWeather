@@ -12,6 +12,7 @@ import Combine
 class WeatherViewModel {
 
     @Published private(set) var weatherList: FiveDayWeatherModel?
+    @Published private(set) var weatherToDay: WeatherModel?
     @Published private(set) var navTitle: String = ""
     
     let weatherProvider: WeatherProvider
@@ -28,7 +29,12 @@ class WeatherViewModel {
     func fetchWeather(lat: Double, lon: Double) {
         self.weatherProvider.getFiveDaysWeather(lat: lat, lon: lon) { result in
             self.weatherList = result
-            print(result)
+        }
+    }
+    
+    func fetchToDayWeather(lat: Double, lon: Double) {
+        self.weatherProvider.getWeatherToDay(lat: lat, lon: lon) { weatherResult in
+            self.weatherToDay = weatherResult
         }
     }
     
@@ -59,4 +65,3 @@ class WeatherViewModel {
     
 }
 
-//self.navTitle = "\(streetNumber) \(streetName) \n \(city), \(state) \(zipCode)"

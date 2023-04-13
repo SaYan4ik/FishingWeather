@@ -14,6 +14,7 @@ class WeatherController: UIViewController {
     lazy var scrollView: UIScrollView = {
         let view = UIScrollView()
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .clear
         return view
     }()
     
@@ -58,7 +59,7 @@ class WeatherController: UIViewController {
     private var cancellables: Set<AnyCancellable> = []
     private var viewModel: WeatherViewModel
     private var weatherModel: FiveDayWeatherModel?
-    
+    private var weatherToDay: WeatherModel?
     override func viewDidLoad() {
         super.viewDidLoad()
         layoutElements()
@@ -89,20 +90,29 @@ class WeatherController: UIViewController {
     private func layoutElements() {
         view.addSubview(scrollView)
         scrollView.addSubview(mainView)
-        mainView.addSubview(titleLabel)
-        mainView.addSubviews(leftTopButton, rightTopButton)
+        mainView.addSubviews(titleLabel, leftTopButton, rightTopButton)
         
+        layoutScrollView()
         layoutMainView()
         layoutTitleLabel()
         layoutTopButtons()
     }
     
+    private func layoutScrollView() {
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+    }
+    
     private func layoutMainView() {
         NSLayoutConstraint.activate([
-            mainView.topAnchor.constraint(equalTo: view.topAnchor),
-            mainView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            mainView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            mainView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            mainView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            mainView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            mainView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            mainView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
         ])
     }
     
@@ -153,6 +163,13 @@ class WeatherController: UIViewController {
             self.titleLabel.text = text
             print(text)
         }.store(in: &cancellables)
+        
+        
+        viewModel.$weatherToDay.sink { [weak self] weatherToDay in
+            guard let self else { return }
+            self.weatherToDay = weatherToDay
+        }.store(in: &cancellables)
+        
     }
     
 }
@@ -163,6 +180,7 @@ extension WeatherController: CLLocationManagerDelegate {
         let locValue:CLLocationCoordinate2D = manager.location!.coordinate
         print("locations = \(locValue.latitude) \(locValue.longitude)")
         viewModel.fetchWeather(lat: locValue.latitude, lon: locValue.longitude)
+        viewModel.fetchToDayWeather(lat: locValue.latitude, lon: locValue.longitude)
     }
 }
 

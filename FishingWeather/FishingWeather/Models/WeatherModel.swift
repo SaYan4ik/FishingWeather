@@ -9,7 +9,7 @@ import Foundation
 import ObjectMapper
 
 class WeatherModel: Mappable {
-    var weather: Weather?
+    var weather: WeatherMain?
     
     var temp: Double = 0.0
     var feelsLike: Double = 0.0
@@ -36,7 +36,7 @@ class WeatherModel: Mappable {
     
 }
 
-class Weather: Mappable {
+class WeatherMain: Mappable {
     var main: String = ""
     var descripition: String = ""
     var imageWeather: String = ""
