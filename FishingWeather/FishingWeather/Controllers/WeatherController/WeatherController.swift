@@ -58,6 +58,12 @@ class WeatherController: UIViewController {
         return collectionView
     }()
     
+    lazy var todayInfoView: TodayWeatherInformationView = {
+        let view = TodayWeatherInformationView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private var locationManager = CLLocationManager()
     private var cancellables: Set<AnyCancellable> = []
     private var viewModel: WeatherViewModel
@@ -100,6 +106,7 @@ class WeatherController: UIViewController {
         layoutMainView()
         layoutTitleLabel()
         layoutTopButtons()
+        layoutTodayInfoWeatherView()
     }
     
     private func layoutScrollView() {
@@ -145,6 +152,15 @@ class WeatherController: UIViewController {
             rightTopButton.widthAnchor.constraint(equalToConstant: 24)
         ])
         
+    }
+    
+    private func layoutTodayInfoWeatherView() {
+        NSLayoutConstraint.activate([
+            todayInfoView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            todayInfoView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            todayInfoView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            todayInfoView.heightAnchor.constraint(equalToConstant: 192)
+        ])
     }
     
     private func setupMyLocationCoord() {
