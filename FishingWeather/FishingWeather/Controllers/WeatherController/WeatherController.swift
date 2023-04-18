@@ -14,7 +14,8 @@ class WeatherController: UIViewController {
     lazy var scrollView: UIScrollView = {
         let view = UIScrollView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .clear
+        view.showsHorizontalScrollIndicator = false
+        view.showsVerticalScrollIndicator = false
         return view
     }()
     
@@ -52,6 +53,8 @@ class WeatherController: UIViewController {
         let collectionView = UICollectionView()
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.dataSource = self
+        collectionView.showsVerticalScrollIndicator = false
+        collectionView.showsHorizontalScrollIndicator = false
         return collectionView
     }()
     
@@ -60,6 +63,7 @@ class WeatherController: UIViewController {
     private var viewModel: WeatherViewModel
     private var weatherModel: FiveDayWeatherModel?
     private var weatherToDay: WeatherModel?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         layoutElements()
@@ -100,10 +104,10 @@ class WeatherController: UIViewController {
     
     private func layoutScrollView() {
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            scrollView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
         ])
     }
     
@@ -111,8 +115,9 @@ class WeatherController: UIViewController {
         NSLayoutConstraint.activate([
             mainView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             mainView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            mainView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            mainView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
+            mainView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            mainView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            mainView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
         ])
     }
     

@@ -51,11 +51,8 @@ class WeatherViewModel {
             }
             
             guard let placemark = placemarks?.first else { return }
-//            guard let streetNumber = placemark.subThoroughfare else { return }
-//            guard let streetName = placemark.thoroughfare else { return }
             guard let city = placemark.locality else { return }
             guard let state = placemark.administrativeArea else { return }
-//            guard let zipCode = placemark.postalCode else { return }
             
             DispatchQueue.main.async {
                 self.navTitle = "\(city), \(state)"
