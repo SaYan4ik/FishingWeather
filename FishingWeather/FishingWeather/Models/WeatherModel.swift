@@ -9,7 +9,7 @@ import Foundation
 import ObjectMapper
 
 class WeatherModel: Mappable {
-    var weather: WeatherMain?
+    var weather: [WeatherMain]?
     
     var temp: Double = 0.0
     var feelsLike: Double = 0.0
@@ -25,6 +25,7 @@ class WeatherModel: Mappable {
     }
     
     func mapping(map: ObjectMapper.Map) {
+        weather         <- map["weather"]
         temp            <- map["main.temp"]
         feelsLike       <- map["main.feels_like"]
         tempMin         <- map["main.temp_min"]

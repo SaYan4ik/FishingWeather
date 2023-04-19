@@ -27,6 +27,15 @@ class TodayWeatherInformationView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 10)
+        label.textAlignment = .center
+        
+        let mytime = Date()
+        let format = DateFormatter()
+        format.timeStyle = .none
+        format.dateStyle = .long
+        label.text = "\(format.string(from: mytime))"
+
+        
         label.textColor = UIColor(red: 0.608, green: 0.618, blue: 0.678, alpha: 1)
         return label
     }()
@@ -35,6 +44,7 @@ class TodayWeatherInformationView: UIView {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "cloud")
         imageView.contentMode = .scaleAspectFill
+        imageView.backgroundColor = .clear
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -42,26 +52,27 @@ class TodayWeatherInformationView: UIView {
     lazy var temperatureLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 48)
-        let firstColor = UIColor(red: 162/255, green: 164/255, blue: 181/255, alpha: 1).cgColor
-        let secondColor = UIColor(red: 84/255, green: 87/255, blue: 96/255, alpha: 1).cgColor
-        label.applyGradient(colors: [firstColor, secondColor], locations: [0.0, 1.0], direction: .leftToRight)
+        label.font = UIFont(name: "Impact", size: 40.0)
+        label.textAlignment = .center
+        label.numberOfLines = 0
         return label
     }()
     
     lazy var descriptionWeatherLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15)
+        label.font = .systemFont(ofSize: 18)
         label.textColor = .white
+        label.textAlignment = .center
         return label
     }()
     
     lazy var foolInformationLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 15)
+        label.font = .systemFont(ofSize: 12)
         label.textColor = .systemGray4
+        label.textAlignment = .center
         return label
     }()
     
@@ -74,7 +85,6 @@ class TodayWeatherInformationView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
     
     private func layoutElements() {
         self.addSubview(contentView)
@@ -92,6 +102,8 @@ class TodayWeatherInformationView: UIView {
         layoutTodayWeatherTitle()
         layoutWeatherImage()
         layoutWeatherTemperetureLabel()
+        layoutDescriptionLabel()
+        layoutFoolInfoLabel()
     }
     
     private func layoutСontentView() {
@@ -99,7 +111,7 @@ class TodayWeatherInformationView: UIView {
             contentView.topAnchor.constraint(equalTo: self.topAnchor),
             contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            contentView.leadingAnchor.constraint(equalTo: self.leftAnchor)
+            contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor)
         ])
     }
     
@@ -107,7 +119,8 @@ class TodayWeatherInformationView: UIView {
         NSLayoutConstraint.activate([
             labelView.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 11),
             labelView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -122),
-            labelView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 122)
+            labelView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 122),
+            labelView.heightAnchor.constraint(equalToConstant: 28)
         ])
     }
     
@@ -122,8 +135,8 @@ class TodayWeatherInformationView: UIView {
     
     private func layoutWeatherImage() {
         NSLayoutConstraint.activate([
-            weatherImageView.topAnchor.constraint(equalTo: self.labelView.bottomAnchor, constant: -7),
-            weatherImageView.leadingAnchor.constraint(equalTo: self.contentView.leftAnchor, constant: 25),
+            weatherImageView.topAnchor.constraint(equalTo: self.labelView.bottomAnchor, constant: 7),
+            weatherImageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 25),
             weatherImageView.widthAnchor.constraint(equalToConstant: 120),
             weatherImageView.heightAnchor.constraint(equalToConstant: 95)
         ])
@@ -132,7 +145,23 @@ class TodayWeatherInformationView: UIView {
     private func layoutWeatherTemperetureLabel() {
         NSLayoutConstraint.activate([
             temperatureLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -48),
-            temperatureLabel.topAnchor.constraint(equalTo: self.labelView.bottomAnchor, constant: -24)
+            temperatureLabel.leadingAnchor.constraint(equalTo: self.weatherImageView.trailingAnchor, constant: 77),
+            temperatureLabel.topAnchor.constraint(equalTo: self.labelView.bottomAnchor, constant: 24)
+        ])
+    }
+    
+    private func layoutDescriptionLabel() {
+        NSLayoutConstraint.activate([
+            descriptionWeatherLabel.topAnchor.constraint(equalTo: self.temperatureLabel.bottomAnchor, constant: 7),
+            descriptionWeatherLabel.centerXAnchor.constraint(equalTo: self.temperatureLabel.centerXAnchor)
+        ])
+    }
+    
+    private func layoutFoolInfoLabel() {
+        NSLayoutConstraint.activate([
+            foolInformationLabel.topAnchor.constraint(equalTo: self.weatherImageView.bottomAnchor, constant: 15),
+            foolInformationLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -46),
+            foolInformationLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 47)
         ])
     }
     

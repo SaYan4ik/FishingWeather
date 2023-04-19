@@ -7,6 +7,6 @@ target 'FishingWeather' do
 
   # Pods for FishingWeather
 	pod 'Moya'
-	pod 'Moya-ObjectMapper', '2.9'
-	pod 'RealmSwift'
+	pod 'Moya-ObjectMapper'
+	pod 'SDWebImage'
 end

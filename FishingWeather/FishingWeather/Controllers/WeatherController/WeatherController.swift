@@ -8,6 +8,7 @@
 import UIKit
 import CoreLocation
 import Combine
+import SDWebImage
 
 class WeatherController: UIViewController {
 
@@ -68,7 +69,11 @@ class WeatherController: UIViewController {
     private var cancellables: Set<AnyCancellable> = []
     private var viewModel: WeatherViewModel
     private var weatherModel: FiveDayWeatherModel?
-    private var weatherToDay: WeatherModel?
+    private var weatherToDay: WeatherModel? {
+        didSet {
+            setupViewInformation()
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -95,12 +100,18 @@ class WeatherController: UIViewController {
         let topColor = UIColor(red: 72/255.0, green: 75/255.0, blue: 91/255.0, alpha: 1.0).cgColor
         let bottomColor = UIColor(red: 44/255.0, green: 45/255.0, blue: 53/255.0, alpha: 1.0).cgColor
         mainView.applyGradient(colors: [topColor, bottomColor])
+        
+        
+        let firstColor = UIColor(red: 162/255.0, green: 164/255.0, blue: 181/255.0, alpha: 1)
+        let secondColor = UIColor(red: 84/255.0, green: 87/255.0, blue: 96/255.0, alpha: 1)
+        let gradient = UIImage.gradientImage(bounds: todayInfoView.temperatureLabel.bounds, colors: [firstColor, secondColor])
+        todayInfoView.temperatureLabel.textColor = UIColor(patternImage: gradient)
     }
     
     private func layoutElements() {
         view.addSubview(scrollView)
         scrollView.addSubview(mainView)
-        mainView.addSubviews(titleLabel, leftTopButton, rightTopButton)
+        mainView.addSubviews(titleLabel, leftTopButton, rightTopButton, todayInfoView)
         
         layoutScrollView()
         layoutMainView()
@@ -108,6 +119,7 @@ class WeatherController: UIViewController {
         layoutTopButtons()
         layoutTodayInfoWeatherView()
     }
+    
     
     private func layoutScrollView() {
         NSLayoutConstraint.activate([
@@ -156,9 +168,9 @@ class WeatherController: UIViewController {
     
     private func layoutTodayInfoWeatherView() {
         NSLayoutConstraint.activate([
-            todayInfoView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            todayInfoView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            todayInfoView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            todayInfoView.topAnchor.constraint(equalTo: mainView.topAnchor, constant: 120),
+            todayInfoView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor),
+            todayInfoView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
             todayInfoView.heightAnchor.constraint(equalToConstant: 192)
         ])
     }
@@ -190,9 +202,20 @@ class WeatherController: UIViewController {
             guard let self else { return }
             self.weatherToDay = weatherToDay
         }.store(in: &cancellables)
-        
     }
     
+    private func setupViewInformation() {
+        guard let weatherToDay else { return }
+        guard let nameImage = weatherToDay.weather?.first?.imageWeather,
+              let description = weatherToDay.weather?.first?.descripition
+        else { return }
+        let url = URL(string: "https://openweathermap.org/img/wn/\(nameImage)@2x.png")
+        
+        todayInfoView.weatherImageView.sd_setImage(with: url)
+        todayInfoView.temperatureLabel.text = "\(weatherToDay.temp)"
+        todayInfoView.descriptionWeatherLabel.text = description
+        todayInfoView.foolInformationLabel.text = "\(weatherToDay.tempMax) / \(weatherToDay.tempMin)°C|Feels like \(weatherToDay.feelsLike)°C | Wind \(weatherToDay.windSpeed)M/S"
+    }
 }
 
 
