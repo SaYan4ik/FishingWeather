@@ -48,7 +48,8 @@ class CityWeatherModel: Mappable {
 }
 
 class ListWeatherModel: Mappable{
-
+    var date: Int = 0
+    
     var temp: Double = 0.0
     var tempMin: Double = 0.0
     var tempMax: Double = 0.0
@@ -66,6 +67,7 @@ class ListWeatherModel: Mappable{
     }
     
     func mapping(map: ObjectMapper.Map) {
+        date                 <- map["dt"]
         temp                 <- map["main.temp"]
         tempMin              <- map["main.temp_min"]
         tempMax              <- map["main.temp_max"]

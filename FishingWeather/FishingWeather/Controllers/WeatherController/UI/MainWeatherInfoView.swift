@@ -70,8 +70,18 @@ class MainWeatherInfoView: UIView {
             pressureLabel
         )
         
+        layoutСontentView()
         layoutLabels()
         
+    }
+    
+    private func layoutСontentView() {
+        NSLayoutConstraint.activate([
+            contentView.topAnchor.constraint(equalTo: self.topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor)
+        ])
     }
     
     private func layoutLabels() {

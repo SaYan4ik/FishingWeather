@@ -80,7 +80,11 @@ class WeatherController: UIViewController {
     private var locationManager = CLLocationManager()
     private var cancellables: Set<AnyCancellable> = []
     private var viewModel: WeatherViewModel
-    private var weatherModel: FiveDayWeatherModel?
+    private var weatherModel: FiveDayWeatherModel? {
+        didSet {
+            collectionView.reloadData()
+        }
+    }
     private var weatherToDay: WeatherModel? {
         didSet {
             setupViewInformation()
@@ -98,6 +102,7 @@ class WeatherController: UIViewController {
         super.viewDidLayoutSubviews()
         setViewColor()
         setupMainInfoView()
+        registrationCell()
     }
     
     init(viewModel: WeatherViewModel) {
@@ -136,6 +141,7 @@ class WeatherController: UIViewController {
         layoutTodayInfoWeatherView()
         layoutDashLine()
         layoutMainInfoWeatherView()
+        layoutCollectionView()
     }
     
     
@@ -206,8 +212,16 @@ class WeatherController: UIViewController {
         NSLayoutConstraint.activate([
             mainInfoWeatherView.topAnchor.constraint(equalTo: dashLine.bottomAnchor, constant: 5),
             mainInfoWeatherView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor),
-            mainInfoWeatherView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
-            mainInfoWeatherView.heightAnchor.constraint(equalToConstant: 100)
+            mainInfoWeatherView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor)
+        ])
+    }
+    
+    private func layoutCollectionView() {
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: mainInfoWeatherView.bottomAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
+            collectionView.leftAnchor.constraint(equalTo: mainView.leadingAnchor),
+            collectionView.heightAnchor.constraint(equalToConstant: 100)
         ])
     }
     
@@ -218,6 +232,10 @@ class WeatherController: UIViewController {
         locationManager.startUpdatingLocation()
     }
     
+    private func registrationCell() {
+        let nib = UINib(nibName: InformationFilterCell.id, bundle: nil)
+        collectionView.register(nib, forCellWithReuseIdentifier: InformationFilterCell.id)
+    }
    
         
     private func bindViewModel() {
@@ -284,23 +302,18 @@ extension WeatherController: CLLocationManagerDelegate {
 
 extension WeatherController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let weatherModel else { return 0}
+        guard let weatherModel else { return 0 }
         return weatherModel.listWeatherModel.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        return UICollectionViewCell()
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InformationFilterCell.id, for: indexPath)
+        guard let infoCell = cell as? InformationFilterCell else { return cell}
+        guard let weatherModel else { return cell}
+        
+        infoCell.set(weatherData: weatherModel.listWeatherModel[indexPath.item])
+        
+        return infoCell
     }
     
-    
-}
-
-extension NSMutableAttributedString {
-
-    func setColorForText(textForAttribute: String, withColor color: UIColor) {
-        let range: NSRange = self.mutableString.range(of: textForAttribute, options: .caseInsensitive)
-        self.addAttribute(NSAttributedString.Key.foregroundColor, value: color, range: range)
-
-    }
-
 }
