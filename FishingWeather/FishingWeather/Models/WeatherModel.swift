@@ -18,6 +18,7 @@ class WeatherModel: Mappable {
     var pressure: Int = 0
     var humidity: Int = 0
     var windSpeed: Double = 0.0
+    var rain: Double = 0.0
     
     
     required init?(map: ObjectMapper.Map) {
@@ -33,6 +34,7 @@ class WeatherModel: Mappable {
         pressure        <- map["main.pressure"]
         humidity        <- map["main.humidity"]
         windSpeed       <- map["wind.speed"]
+        rain            <- map["rain.1h"]
     }
     
 }

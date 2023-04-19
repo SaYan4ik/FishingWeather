@@ -65,6 +65,18 @@ class WeatherController: UIViewController {
         return view
     }()
     
+    lazy var dashLine: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    lazy var mainInfoWeatherView: MainWeatherInfoView = {
+        let view = MainWeatherInfoView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private var locationManager = CLLocationManager()
     private var cancellables: Set<AnyCancellable> = []
     private var viewModel: WeatherViewModel
@@ -85,6 +97,7 @@ class WeatherController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         setViewColor()
+        setupMainInfoView()
     }
     
     init(viewModel: WeatherViewModel) {
@@ -106,18 +119,23 @@ class WeatherController: UIViewController {
         let secondColor = UIColor(red: 84/255.0, green: 87/255.0, blue: 96/255.0, alpha: 1)
         let gradient = UIImage.gradientImage(bounds: todayInfoView.temperatureLabel.bounds, colors: [firstColor, secondColor])
         todayInfoView.temperatureLabel.textColor = UIColor(patternImage: gradient)
+        
+        dashLine.createDottedLine(width: 1, color: UIColor(red: 0.592, green: 0.592, blue: 0.592, alpha: 0.17))
+        
     }
     
     private func layoutElements() {
         view.addSubview(scrollView)
         scrollView.addSubview(mainView)
-        mainView.addSubviews(titleLabel, leftTopButton, rightTopButton, todayInfoView)
+        mainView.addSubviews(titleLabel, leftTopButton, rightTopButton, todayInfoView, dashLine, mainInfoWeatherView)
         
         layoutScrollView()
         layoutMainView()
         layoutTitleLabel()
         layoutTopButtons()
         layoutTodayInfoWeatherView()
+        layoutDashLine()
+        layoutMainInfoWeatherView()
     }
     
     
@@ -175,6 +193,24 @@ class WeatherController: UIViewController {
         ])
     }
     
+    private func layoutDashLine() {
+        NSLayoutConstraint.activate([
+            dashLine.topAnchor.constraint(equalTo: todayInfoView.bottomAnchor),
+            dashLine.leadingAnchor.constraint(equalTo: mainView.leadingAnchor, constant: 25),
+            dashLine.trailingAnchor.constraint(equalTo: mainView.trailingAnchor, constant: -25),
+            dashLine.heightAnchor.constraint(equalToConstant: 1)
+        ])
+    }
+    
+    private func layoutMainInfoWeatherView() {
+        NSLayoutConstraint.activate([
+            mainInfoWeatherView.topAnchor.constraint(equalTo: dashLine.bottomAnchor, constant: 5),
+            mainInfoWeatherView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor),
+            mainInfoWeatherView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
+            mainInfoWeatherView.heightAnchor.constraint(equalToConstant: 100)
+        ])
+    }
+    
     private func setupMyLocationCoord() {
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -212,10 +248,28 @@ class WeatherController: UIViewController {
         let url = URL(string: "https://openweathermap.org/img/wn/\(nameImage)@2x.png")
         
         todayInfoView.weatherImageView.sd_setImage(with: url)
-        todayInfoView.temperatureLabel.text = "\(weatherToDay.temp)"
+        todayInfoView.temperatureLabel.text = "\(weatherToDay.temp)°C"
         todayInfoView.descriptionWeatherLabel.text = description
-        todayInfoView.foolInformationLabel.text = "\(weatherToDay.tempMax) / \(weatherToDay.tempMin)°C|Feels like \(weatherToDay.feelsLike)°C | Wind \(weatherToDay.windSpeed)M/S"
+        todayInfoView.foolInformationLabel.text = "\(weatherToDay.tempMax) / \(weatherToDay.tempMin) °C | Feels like \(weatherToDay.feelsLike) °C | Wind \(weatherToDay.windSpeed) M/S"
     }
+    
+    private func setupMainInfoView() {
+        guard let weatherToDay else { return }
+        mainInfoWeatherView.rainLabel.text = "Rain: \(weatherToDay.rain), 1 hour.mm"
+        mainInfoWeatherView.rainLabel.addImageTest(image: UIImage(named: "rain"))
+        
+        mainInfoWeatherView.windLabel.text = "Wind: \(weatherToDay.windSpeed), m/s"
+        mainInfoWeatherView.windLabel.addImageTest(image: UIImage(named: "wind"))
+
+        mainInfoWeatherView.humiditiLabel.text = "Humidity: \(weatherToDay.humidity), %"
+        mainInfoWeatherView.humiditiLabel.addImageTest(image: UIImage(named: "humidity"))
+        
+        mainInfoWeatherView.pressureLabel.text = "Preasure: \(weatherToDay.pressure), hPa"
+        mainInfoWeatherView.pressureLabel.addImageTest(image: UIImage(named: "preasure"))
+        
+    }
+    
+    
 }
 
 
@@ -239,4 +293,14 @@ extension WeatherController: UICollectionViewDataSource {
     }
     
     
+}
+
+extension NSMutableAttributedString {
+
+    func setColorForText(textForAttribute: String, withColor color: UIColor) {
+        let range: NSRange = self.mutableString.range(of: textForAttribute, options: .caseInsensitive)
+        self.addAttribute(NSAttributedString.Key.foregroundColor, value: color, range: range)
+
+    }
+
 }
