@@ -15,24 +15,28 @@ class InformationFilterCell: UICollectionViewCell {
     private var weatherData: ListWeatherModel?
     
     lazy var conteinerView: UIView = {
-        let view = UIView()
-        view.frame = CGRect(x: 0, y: 0, width: 46, height: 100)
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 100))
         view.backgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.1)
-        view.layer.cornerRadius = view.frame.height / 2
+        view.layer.cornerRadius = 30
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     lazy var timeLabel: UILabel = {
         let label = UILabel()
-        label.font = .boldSystemFont(ofSize: 8)
+        label.font = .boldSystemFont(ofSize: 9)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Time"
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.textColor = .white
         return label
     }()
     
     lazy var imageViewWeather: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
+        imageView.image = UIImage(systemName: "cloud")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -40,7 +44,11 @@ class InformationFilterCell: UICollectionViewCell {
     lazy var temperatureLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .boldSystemFont(ofSize: 12)
+        label.font = .boldSystemFont(ofSize: 8)
+        label.text = "Temp"
+        label.textAlignment = .center
+        label.textColor = .white
+        label.numberOfLines = 0
         return label
     }()
     
@@ -62,16 +70,17 @@ class InformationFilterCell: UICollectionViewCell {
             )
         
         layoutContainerView()
+        layoutTitleLabel()
         layoutImageViewWeather()
         layoutTemperatureLabel()
     }
     
     private func layoutContainerView() {
         NSLayoutConstraint.activate([
-            conteinerView.topAnchor.constraint(equalTo: self.topAnchor),
-            conteinerView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            conteinerView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            conteinerView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            conteinerView.topAnchor.constraint(equalTo: self.contentView.topAnchor),
+            conteinerView.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor),
+            conteinerView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
+            conteinerView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
         ])
     }
     
@@ -88,28 +97,34 @@ class InformationFilterCell: UICollectionViewCell {
             imageViewWeather.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 8),
             imageViewWeather.trailingAnchor.constraint(equalTo: conteinerView.trailingAnchor, constant: -11),
             imageViewWeather.leadingAnchor.constraint(equalTo: conteinerView.leadingAnchor, constant: 11),
+            imageViewWeather.heightAnchor.constraint(equalToConstant: 15.43),
+            imageViewWeather.widthAnchor.constraint(equalToConstant: 24)
         ])
     }
     
     private func layoutTemperatureLabel() {
         NSLayoutConstraint.activate([
-            temperatureLabel.topAnchor.constraint(equalTo: imageViewWeather.bottomAnchor, constant: 16),
+            temperatureLabel.topAnchor.constraint(equalTo: imageViewWeather.bottomAnchor, constant: 5),
             temperatureLabel.leadingAnchor.constraint(equalTo: conteinerView.leadingAnchor, constant: 12.5),
-            temperatureLabel.trailingAnchor.constraint(equalTo: conteinerView.trailingAnchor, constant: 13.5),
-            temperatureLabel.bottomAnchor.constraint(equalTo: conteinerView.bottomAnchor, constant: -11)
+            temperatureLabel.trailingAnchor.constraint(equalTo: conteinerView.trailingAnchor, constant: -13.5)
+//            temperatureLabel.bottomAnchor.constraint(equalTo: conteinerView.bottomAnchor, constant: -11)
         ])
     }
     
     func set(weatherData: ListWeatherModel) {
         self.weatherData = weatherData
-        let url = URL(string: "https://openweathermap.org/img/wn/\(weatherData.weatherIcon)@2x.png")
+        guard let weatherIcon = weatherData.weatherMain.first?.imageWeather else { return }
+        let url = URL(string: "https://openweathermap.org/img/wn/\(weatherIcon)@2x.png")
         imageViewWeather.sd_setImage(with: url)
-
-    }
-    
-    private func setupData() {
         
-
+        let date = NSDate(timeIntervalSince1970: TimeInterval(weatherData.date))
+        let utcDateFormatter = DateFormatter()
+        utcDateFormatter.timeStyle = .short
+        let localDate = utcDateFormatter.string(from: date as Date)
+        
+        timeLabel.text = localDate
+        
+        temperatureLabel.text = "\(weatherData.temp), °C"
     }
     
 }

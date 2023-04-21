@@ -56,9 +56,11 @@ class ListWeatherModel: Mappable{
     var pressure: Int = 0
     var humidity: Int = 0
     
-    var weatherTitle: String = ""
-    var weatherDescription: String = ""
-    var weatherIcon: String = ""
+    var weatherMain: [WeatherFiveDay] = []
+    
+//    var weatherTitle: String = ""
+//    var weatherDescription: String = ""
+//    var weatherIcon: String = ""
     
     var windSpeed: Double = 0.0
     
@@ -73,11 +75,28 @@ class ListWeatherModel: Mappable{
         tempMax              <- map["main.temp_max"]
         pressure             <- map["main.pressure"]
         humidity             <- map["main.humidity"]
-        
-        weatherTitle         <- map["weather.main"]
-        weatherDescription   <- map["weather.description"]
-        weatherIcon          <- map["weather.icon"]
+        weatherMain          <- map["weather"]
+//        weatherTitle         <- map["weather.main"]
+//        weatherDescription   <- map["weather.description"]
+//        weatherIcon          <- map["weather.icon"]
         
         windSpeed            <- map["wind.speed"]
+    }
+}
+
+
+class WeatherFiveDay: Mappable {
+    var main: String = ""
+    var descripition: String = ""
+    var imageWeather: String = ""
+    
+    required init?(map: ObjectMapper.Map) {
+        mapping(map: map)
+    }
+    
+    func mapping(map: ObjectMapper.Map) {
+        main <- map["main"]
+        descripition <- map["description"]
+        imageWeather <- map["icon"]
     }
 }

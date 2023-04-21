@@ -51,11 +51,17 @@ class WeatherController: UIViewController {
     }()
     
     lazy var collectionView: UICollectionView = {
-        let collectionView = UICollectionView()
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.itemSize = CGSize(width: 60, height: 100)
+        let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.dataSource = self
         collectionView.showsVerticalScrollIndicator = false
         collectionView.showsHorizontalScrollIndicator = false
+        collectionView.backgroundColor = .clear
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        collectionView.register(InformationFilterCell.self, forCellWithReuseIdentifier: InformationFilterCell.id)
         return collectionView
     }()
     
@@ -88,6 +94,7 @@ class WeatherController: UIViewController {
     private var weatherToDay: WeatherModel? {
         didSet {
             setupViewInformation()
+            self.view.layoutIfNeeded()
         }
     }
     
@@ -98,11 +105,11 @@ class WeatherController: UIViewController {
         setupMyLocationCoord()
     }
     
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         setViewColor()
         setupMainInfoView()
-        registrationCell()
     }
     
     init(viewModel: WeatherViewModel) {
@@ -119,7 +126,6 @@ class WeatherController: UIViewController {
         let bottomColor = UIColor(red: 44/255.0, green: 45/255.0, blue: 53/255.0, alpha: 1.0).cgColor
         mainView.applyGradient(colors: [topColor, bottomColor])
         
-        
         let firstColor = UIColor(red: 162/255.0, green: 164/255.0, blue: 181/255.0, alpha: 1)
         let secondColor = UIColor(red: 84/255.0, green: 87/255.0, blue: 96/255.0, alpha: 1)
         let gradient = UIImage.gradientImage(bounds: todayInfoView.temperatureLabel.bounds, colors: [firstColor, secondColor])
@@ -132,7 +138,7 @@ class WeatherController: UIViewController {
     private func layoutElements() {
         view.addSubview(scrollView)
         scrollView.addSubview(mainView)
-        mainView.addSubviews(titleLabel, leftTopButton, rightTopButton, todayInfoView, dashLine, mainInfoWeatherView)
+        mainView.addSubviews(titleLabel, leftTopButton, rightTopButton, todayInfoView, dashLine, mainInfoWeatherView, collectionView)
         
         layoutScrollView()
         layoutMainView()
@@ -220,7 +226,7 @@ class WeatherController: UIViewController {
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: mainInfoWeatherView.bottomAnchor),
             collectionView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
-            collectionView.leftAnchor.constraint(equalTo: mainView.leadingAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor),
             collectionView.heightAnchor.constraint(equalToConstant: 100)
         ])
     }
@@ -231,12 +237,6 @@ class WeatherController: UIViewController {
         locationManager.requestAlwaysAuthorization()
         locationManager.startUpdatingLocation()
     }
-    
-    private func registrationCell() {
-        let nib = UINib(nibName: InformationFilterCell.id, bundle: nil)
-        collectionView.register(nib, forCellWithReuseIdentifier: InformationFilterCell.id)
-    }
-   
         
     private func bindViewModel() {
         viewModel.$weatherList.sink { [weak self] weatherList in
@@ -248,7 +248,6 @@ class WeatherController: UIViewController {
         viewModel.$navTitle.sink { [weak self] text in
             guard let self else { return }
             self.titleLabel.text = text
-            print(text)
         }.store(in: &cancellables)
         
         
@@ -284,7 +283,6 @@ class WeatherController: UIViewController {
         
         mainInfoWeatherView.pressureLabel.text = "Preasure: \(weatherToDay.pressure), hPa"
         mainInfoWeatherView.pressureLabel.addImageTest(image: UIImage(named: "preasure"))
-        
     }
     
     
@@ -294,7 +292,6 @@ class WeatherController: UIViewController {
 extension WeatherController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let locValue:CLLocationCoordinate2D = manager.location!.coordinate
-        print("locations = \(locValue.latitude) \(locValue.longitude)")
         viewModel.fetchWeather(lat: locValue.latitude, lon: locValue.longitude)
         viewModel.fetchToDayWeather(lat: locValue.latitude, lon: locValue.longitude)
     }
@@ -315,5 +312,5 @@ extension WeatherController: UICollectionViewDataSource {
         
         return infoCell
     }
-    
 }
+
