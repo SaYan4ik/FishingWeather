@@ -7,6 +7,6 @@ target 'FishingWeather' do
 
   # Pods for FishingWeather
 	pod 'Moya'
-	pod 'Moya-ObjectMapper'
 	pod 'SDWebImage'
+	pod 'Charts'
 end

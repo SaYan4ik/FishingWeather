@@ -109,14 +109,14 @@ class InformationFilterCell: UICollectionViewCell {
     }
     
     func set(weatherHourData: HourForecastModel) {
-        guard let url = weatherHourData.condition?.icon?.dropFirst(2) else { return }
+        guard let url = weatherHourData.condition?.icon else { return }
         guard let time = weatherHourData.timeEpoch else { return }
         guard let temp = weatherHourData.tempC else { return }
 
         timeLabel.text = dateFormater(time: time)
         temperatureLabel.text = "\(temp), °C"
 
-        imageViewWeather.sd_setImage(with: URL(string: String("https://" + url)))
+        imageViewWeather.sd_setImage(with: URL(string: String("https:" + url)))
     }
     
     private func dateFormater(time: Int) -> String {
