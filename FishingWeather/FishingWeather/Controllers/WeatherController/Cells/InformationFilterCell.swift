@@ -107,24 +107,22 @@ class InformationFilterCell: UICollectionViewCell {
             temperatureLabel.topAnchor.constraint(equalTo: imageViewWeather.bottomAnchor, constant: 5),
             temperatureLabel.leadingAnchor.constraint(equalTo: conteinerView.leadingAnchor, constant: 12.5),
             temperatureLabel.trailingAnchor.constraint(equalTo: conteinerView.trailingAnchor, constant: -13.5)
-//            temperatureLabel.bottomAnchor.constraint(equalTo: conteinerView.bottomAnchor, constant: -11)
         ])
     }
     
-    func set(weatherData: ListWeatherModel) {
-        self.weatherData = weatherData
-        guard let weatherIcon = weatherData.weatherMain.first?.imageWeather else { return }
-        let url = URL(string: "https://openweathermap.org/img/wn/\(weatherIcon)@2x.png")
-        imageViewWeather.sd_setImage(with: url)
+    func set(weatherHourData: HourForecastModel) {
+        guard let url = weatherHourData.condition?.icon?.dropFirst(2) else { return }
+        guard let time = weatherHourData.timeEpoch else { return }
+        guard let temp = weatherHourData.tempC else { return }
         
-        let date = NSDate(timeIntervalSince1970: TimeInterval(weatherData.date))
+        let date = NSDate(timeIntervalSince1970: TimeInterval(time))
         let utcDateFormatter = DateFormatter()
         utcDateFormatter.timeStyle = .short
         let localDate = utcDateFormatter.string(from: date as Date)
         
         timeLabel.text = localDate
-        
-        temperatureLabel.text = "\(weatherData.temp), °C"
+        temperatureLabel.text = "\(temp), °C"
+
+        imageViewWeather.sd_setImage(with: URL(string: String("https://" + url)))
     }
-    
 }

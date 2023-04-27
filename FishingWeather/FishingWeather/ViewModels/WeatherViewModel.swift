@@ -10,10 +10,8 @@ import CoreLocation
 import Combine
 
 class WeatherViewModel {
-
-    @Published private(set) var weatherList: FiveDayWeatherModel?
-    @Published private(set) var weatherToDay: WeatherModel?
     @Published private(set) var navTitle: String = ""
+    @Published private(set) var forecastWeather: ForecastModel?
     
     let weatherProvider: WeatherProvider
     private var locationManager = CLLocationManager()
@@ -26,15 +24,9 @@ class WeatherViewModel {
         setCurrentLocationName()
     }
     
-    func fetchWeather(lat: Double, lon: Double) {
-        self.weatherProvider.getFiveDaysWeather(lat: lat, lon: lon) { result in
-            self.weatherList = result
-        }
-    }
-    
-    func fetchToDayWeather(lat: Double, lon: Double) {
-        self.weatherProvider.getWeatherToDay(lat: lat, lon: lon) { weatherResult in
-            self.weatherToDay = weatherResult
+    func getForecastWeather(latLon: String, days: Int) {
+        self.weatherProvider.getForecastWeather(latLon: latLon, days: days) { forecastResult in
+            self.forecastWeather = forecastResult
         }
     }
     
@@ -59,6 +51,7 @@ class WeatherViewModel {
             }
         }
     }
+    
     
 }
 

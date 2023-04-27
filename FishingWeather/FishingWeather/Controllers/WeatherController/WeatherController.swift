@@ -17,6 +17,7 @@ class WeatherController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.showsHorizontalScrollIndicator = false
         view.showsVerticalScrollIndicator = false
+        view.isScrollEnabled = true
         return view
     }()
     
@@ -83,17 +84,21 @@ class WeatherController: UIViewController {
         return view
     }()
     
+    lazy var tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        
+        return tableView
+    }()
+    
     private var locationManager = CLLocationManager()
     private var cancellables: Set<AnyCancellable> = []
     private var viewModel: WeatherViewModel
-    private var weatherModel: FiveDayWeatherModel? {
+    
+    private var forecastInfo: ForecastModel? {
         didSet {
-            collectionView.reloadData()
-        }
-    }
-    private var weatherToDay: WeatherModel? {
-        didSet {
-            setupViewInformation()
+            setupForecastInfo()
+            self.collectionView.reloadData()
             self.view.layoutIfNeeded()
         }
     }
@@ -109,7 +114,6 @@ class WeatherController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         setViewColor()
-        setupMainInfoView()
     }
     
     init(viewModel: WeatherViewModel) {
@@ -124,8 +128,9 @@ class WeatherController: UIViewController {
     private func setViewColor() {
         let topColor = UIColor(red: 72/255.0, green: 75/255.0, blue: 91/255.0, alpha: 1.0).cgColor
         let bottomColor = UIColor(red: 44/255.0, green: 45/255.0, blue: 53/255.0, alpha: 1.0).cgColor
-        mainView.applyGradient(colors: [topColor, bottomColor])
+        scrollView.applyGradient(colors: [topColor, bottomColor])
         
+        self.todayInfoView.temperatureLabel.layoutIfNeeded()
         let firstColor = UIColor(red: 162/255.0, green: 164/255.0, blue: 181/255.0, alpha: 1)
         let secondColor = UIColor(red: 84/255.0, green: 87/255.0, blue: 96/255.0, alpha: 1)
         let gradient = UIImage.gradientImage(bounds: todayInfoView.temperatureLabel.bounds, colors: [firstColor, secondColor])
@@ -150,7 +155,6 @@ class WeatherController: UIViewController {
         layoutCollectionView()
     }
     
-    
     private func layoutScrollView() {
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: self.view.topAnchor),
@@ -161,12 +165,17 @@ class WeatherController: UIViewController {
     }
     
     private func layoutMainView() {
+        let heightConstraint = mainView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
+        heightConstraint.priority = UILayoutPriority(250)
+        
         NSLayoutConstraint.activate([
-            mainView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            mainView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            mainView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-            mainView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
-            mainView.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
+            mainView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            mainView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            mainView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            mainView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            mainView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            heightConstraint
+            
         ])
     }
     
@@ -227,7 +236,8 @@ class WeatherController: UIViewController {
             collectionView.topAnchor.constraint(equalTo: mainInfoWeatherView.bottomAnchor),
             collectionView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
             collectionView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: 100)
+            collectionView.heightAnchor.constraint(equalToConstant: 100),
+            collectionView.bottomAnchor.constraint(equalTo: mainView.bottomAnchor)
         ])
     }
     
@@ -239,52 +249,49 @@ class WeatherController: UIViewController {
     }
         
     private func bindViewModel() {
-        viewModel.$weatherList.sink { [weak self] weatherList in
-            guard let self else { return }
-            self.weatherModel = weatherList
-            
-        }.store(in: &cancellables)
-        
         viewModel.$navTitle.sink { [weak self] text in
             guard let self else { return }
             self.titleLabel.text = text
         }.store(in: &cancellables)
         
-        
-        viewModel.$weatherToDay.sink { [weak self] weatherToDay in
+        viewModel.$forecastWeather.sink { [weak self] forecast in
             guard let self else { return }
-            self.weatherToDay = weatherToDay
+            self.forecastInfo = forecast
         }.store(in: &cancellables)
     }
+
     
-    private func setupViewInformation() {
-        guard let weatherToDay else { return }
-        guard let nameImage = weatherToDay.weather?.first?.imageWeather,
-              let description = weatherToDay.weather?.first?.descripition
+    private func setupForecastInfo() {
+        guard let maxTemp = forecastInfo?.forecastday?.forecastDay?.first?.day?.maxTempC,
+              let minTemp = forecastInfo?.forecastday?.forecastDay?.first?.day?.minTempC,
+              let feelsLike = forecastInfo?.current?.feelsLikeC,
+              let currentTemp = forecastInfo?.current?.tempC,
+              let hummidity = forecastInfo?.current?.humidity,
+              let pressure = forecastInfo?.current?.preassureMph,
+              let windSpeed = forecastInfo?.current?.windMph,
+              let description = forecastInfo?.current?.condition?.text,
+              let rainCnahse = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?.first?.chanceOfRain,
+              let url = forecastInfo?.current?.condition?.icon?.dropFirst(2)
         else { return }
-        let url = URL(string: "https://openweathermap.org/img/wn/\(nameImage)@2x.png")
         
-        todayInfoView.weatherImageView.sd_setImage(with: url)
-        todayInfoView.temperatureLabel.text = "\(weatherToDay.temp)°C"
+        todayInfoView.weatherImageView.sd_setImage(with: URL(string: String("https://" + url)))
+        todayInfoView.temperatureLabel.text = "\(currentTemp)°C"
         todayInfoView.descriptionWeatherLabel.text = description
-        todayInfoView.foolInformationLabel.text = "\(weatherToDay.tempMax) / \(weatherToDay.tempMin) °C | Feels like \(weatherToDay.feelsLike) °C | Wind \(weatherToDay.windSpeed) M/S"
-    }
-    
-    private func setupMainInfoView() {
-        guard let weatherToDay else { return }
-        mainInfoWeatherView.rainLabel.text = "Rain: \(weatherToDay.rain), 1 hour.mm"
+        todayInfoView.foolInformationLabel.text = "\(maxTemp) / \(minTemp) °C | Feels like \(feelsLike) °C | Wind \(windSpeed) M/S"
+        
+        mainInfoWeatherView.rainLabel.text = "Rain: \(rainCnahse), % chanse"
         mainInfoWeatherView.rainLabel.addImageTest(image: UIImage(named: "rain"))
         
-        mainInfoWeatherView.windLabel.text = "Wind: \(weatherToDay.windSpeed), m/s"
+        mainInfoWeatherView.windLabel.text = "Wind: \(windSpeed), m/s"
         mainInfoWeatherView.windLabel.addImageTest(image: UIImage(named: "wind"))
-
-        mainInfoWeatherView.humiditiLabel.text = "Humidity: \(weatherToDay.humidity), %"
+        
+        mainInfoWeatherView.humiditiLabel.text = "Humidity: \(hummidity), %"
         mainInfoWeatherView.humiditiLabel.addImageTest(image: UIImage(named: "humidity"))
         
-        mainInfoWeatherView.pressureLabel.text = "Preasure: \(weatherToDay.pressure), hPa"
+        mainInfoWeatherView.pressureLabel.text = "Preasure: \(pressure), hPa"
         mainInfoWeatherView.pressureLabel.addImageTest(image: UIImage(named: "preasure"))
+        
     }
-    
     
 }
 
@@ -292,23 +299,24 @@ class WeatherController: UIViewController {
 extension WeatherController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let locValue:CLLocationCoordinate2D = manager.location!.coordinate
-        viewModel.fetchWeather(lat: locValue.latitude, lon: locValue.longitude)
-        viewModel.fetchToDayWeather(lat: locValue.latitude, lon: locValue.longitude)
+        print("\(locValue.latitude), \(locValue.longitude)")
+        viewModel.getForecastWeather(latLon: "\(locValue.latitude), \(locValue.longitude)", days: 1)
     }
 }
 
 extension WeatherController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let weatherModel else { return 0 }
-        return weatherModel.listWeatherModel.count
+
+        guard let numberOfCells = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?.count else { return 0}
+        return numberOfCells
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InformationFilterCell.id, for: indexPath)
         guard let infoCell = cell as? InformationFilterCell else { return cell}
-        guard let weatherModel else { return cell}
+        guard let hourDate = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast else { return cell}
         
-        infoCell.set(weatherData: weatherModel.listWeatherModel[indexPath.item])
+        infoCell.set(weatherHourData: hourDate[indexPath.row])
         
         return infoCell
     }
