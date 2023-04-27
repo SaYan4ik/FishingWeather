@@ -13,7 +13,7 @@ class InformationFilterCell: UICollectionViewCell {
     static var id = String(describing: InformationFilterCell.self)
         
     lazy var conteinerView: UIView = {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 100))
+        let view = UIView()
         view.backgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.1)
         view.layer.cornerRadius = 30
         view.translatesAutoresizingMaskIntoConstraints = false

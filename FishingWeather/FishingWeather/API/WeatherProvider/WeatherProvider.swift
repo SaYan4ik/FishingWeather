@@ -8,6 +8,9 @@
 import Foundation
 import Moya
 
+typealias ObjectBlock<T: Decodable> = ((T) -> Void)
+typealias Failure = ((Error) -> Void)
+
 final class WeatherProvider {
     private let provider = MoyaProvider<WeatherAPI>(plugins: [NetworkLoggerPlugin()])
     

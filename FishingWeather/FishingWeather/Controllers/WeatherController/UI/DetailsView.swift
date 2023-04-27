@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class DetailsView: UIView {
     lazy var conteinerView: UIView = {
@@ -16,6 +17,9 @@ class DetailsView: UIView {
     
     lazy var nameLabel: UILabel = {
         let label = UILabel()
+        label.text = "Details"
+        label.textColor = .white
+        label.font = .systemFont(ofSize: 17)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -23,6 +27,7 @@ class DetailsView: UIView {
     lazy var weatherImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.image = UIImage(systemName: "cloud")
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
@@ -32,7 +37,7 @@ class DetailsView: UIView {
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .horizontal
         stack.distribution = .fill
-        stack.spacing = 100
+        stack.spacing = 10
         return stack
     }()
     
@@ -40,8 +45,9 @@ class DetailsView: UIView {
        let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
-        stack.distribution = .fillEqually
-        stack.spacing = 10
+        stack.distribution = .equalSpacing
+        stack.alignment = .fill
+        stack.spacing = 5
         return stack
     }()
     
@@ -49,9 +55,18 @@ class DetailsView: UIView {
        let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
-        stack.distribution = .fillEqually
-        stack.spacing = 10
+        stack.distribution = .equalSpacing
+        stack.spacing = 5
         return stack
+    }()
+    
+    lazy var describeLabel: UILabel = {
+        let label = UILabel()
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 10)
+        label.textColor = .systemGray5
+        return label
     }()
     
     private var labelsName: [LabelName] = LabelName.allCases
@@ -61,6 +76,7 @@ class DetailsView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        layoutElements()
     }
     
     required init?(coder: NSCoder) {
@@ -69,7 +85,7 @@ class DetailsView: UIView {
     
     private func layoutElements() {
         self.addSubview(conteinerView)
-        self.conteinerView.addSubviews(nameLabel, stackContainer)
+        self.conteinerView.addSubviews(nameLabel, weatherImageView, stackContainer, describeLabel)
         self.stackContainer.addArrangedSubview(nameLabelStack)
         self.stackContainer.addArrangedSubview(paramsLabelStack)
         
@@ -77,7 +93,7 @@ class DetailsView: UIView {
         layoutNameLabel()
         layoutWeatherImageView()
         layoutStackViewContainer()
-        setupData()
+        layoutDescribeLabel()
     }
     
     private func layoutContainerView() {
@@ -107,14 +123,26 @@ class DetailsView: UIView {
     
     private func layoutStackViewContainer() {
         NSLayoutConstraint.activate([
-            conteinerView.topAnchor.constraint(equalTo: conteinerView.topAnchor, constant: 36),
-            conteinerView.trailingAnchor.constraint(equalTo: conteinerView.trailingAnchor, constant: -26),
-            conteinerView.heightAnchor.constraint(equalToConstant: 154)
+            stackContainer.topAnchor.constraint(equalTo: conteinerView.topAnchor, constant: 36),
+            stackContainer.leadingAnchor.constraint(equalTo: weatherImageView.trailingAnchor, constant: 81),
+            stackContainer.heightAnchor.constraint(equalToConstant: 154),
+            stackContainer.widthAnchor.constraint(equalToConstant: 128)
+        ])
+    }
+    
+    private func layoutDescribeLabel() {
+        NSLayoutConstraint.activate([
+            describeLabel.topAnchor.constraint(equalTo: stackContainer.bottomAnchor, constant: 20),
+            describeLabel.trailingAnchor.constraint(equalTo: conteinerView.trailingAnchor, constant: -28),
+            describeLabel.leadingAnchor.constraint(equalTo: conteinerView.leadingAnchor, constant: 22),
+            describeLabel.bottomAnchor.constraint(equalTo: conteinerView.bottomAnchor, constant: -30)
         ])
     }
     
     private func createNameLabels(paramsNameLabel: String) {
         let labelName = UILabel()
+        labelName.font = .systemFont(ofSize: 12)
+        labelName.textColor = .white
         labelName.text = paramsNameLabel
         self.nameLabelStack.addArrangedSubview(labelName)
     }
@@ -122,6 +150,8 @@ class DetailsView: UIView {
     private func cerateParamsLabel(param: String) {
         let paramLabel = UILabel()
         paramLabel.text = param
+        paramLabel.textColor = .white
+        paramLabel.font = .systemFont(ofSize: 12)
         self.paramsLabelStack.addArrangedSubview(paramLabel)
     }
     
@@ -130,7 +160,10 @@ class DetailsView: UIView {
         guard let feelsLike = forecast.feelslikeC,
               let humidity = forecast.hummidity,
               let preassure = forecast.preassureMb,
-              let wind = forecast.windMph
+              let wind = forecast.windMph,
+              let condition = forecast.condition?.text,
+              let windDir = forecast.windDir,
+              let url = forecast.condition?.icon
         else { return }
         
         paramsForecast.append("\(feelsLike)")
@@ -138,6 +171,10 @@ class DetailsView: UIView {
         paramsForecast.append("\(preassure)")
         paramsForecast.append("\(wind)")
         
+        setupData()
+        
+        self.describeLabel.text = "Now - \(condition). Wind direction \(windDir) with \(wind), Mph."
+        weatherImageView.sd_setImage(with: URL(string: String("https:" + url)))
     }
     
     private func setupData() {

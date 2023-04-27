@@ -91,6 +91,14 @@ class WeatherController: UIViewController {
         return tableView
     }()
     
+    lazy var detailsView: DetailsView = {
+        let view = DetailsView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 20
+        view.clipsToBounds = true
+        return view
+    }()
+    
     private var locationManager = CLLocationManager()
     private var cancellables: Set<AnyCancellable> = []
     private var viewModel: WeatherViewModel
@@ -128,7 +136,7 @@ class WeatherController: UIViewController {
     private func setViewColor() {
         let topColor = UIColor(red: 72/255.0, green: 75/255.0, blue: 91/255.0, alpha: 1.0).cgColor
         let bottomColor = UIColor(red: 44/255.0, green: 45/255.0, blue: 53/255.0, alpha: 1.0).cgColor
-        scrollView.applyGradient(colors: [topColor, bottomColor])
+        self.view.applyGradient(colors: [topColor, bottomColor])
         
         self.todayInfoView.temperatureLabel.layoutIfNeeded()
         let firstColor = UIColor(red: 162/255.0, green: 164/255.0, blue: 181/255.0, alpha: 1)
@@ -138,12 +146,16 @@ class WeatherController: UIViewController {
         
         dashLine.createDottedLine(width: 1, color: UIColor(red: 0.592, green: 0.592, blue: 0.592, alpha: 0.17))
         
+        let detailsTopColor = UIColor(red: 35/255, green: 35/255, blue: 41/255, alpha: 1).cgColor
+        let detailsBottomColor = UIColor(red: 47/255, green: 49/255, blue: 58/255, alpha: 1).cgColor
+        detailsView.applyGradient(colors: [detailsTopColor, detailsBottomColor])
+        
     }
     
     private func layoutElements() {
         view.addSubview(scrollView)
         scrollView.addSubview(mainView)
-        mainView.addSubviews(titleLabel, leftTopButton, rightTopButton, todayInfoView, dashLine, mainInfoWeatherView, collectionView)
+        mainView.addSubviews(titleLabel, leftTopButton, rightTopButton, todayInfoView, dashLine, mainInfoWeatherView, collectionView, detailsView)
         
         layoutScrollView()
         layoutMainView()
@@ -153,7 +165,7 @@ class WeatherController: UIViewController {
         layoutDashLine()
         layoutMainInfoWeatherView()
         layoutCollectionView()
-        layoutTableView()
+        layoutDetailsView()
     }
     
     private func layoutScrollView() {
@@ -174,8 +186,8 @@ class WeatherController: UIViewController {
             mainView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
             mainView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
             mainView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
-            mainView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            heightConstraint
+            mainView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+//            heightConstraint
             
         ])
     }
@@ -237,7 +249,7 @@ class WeatherController: UIViewController {
             collectionView.topAnchor.constraint(equalTo: mainInfoWeatherView.bottomAnchor),
             collectionView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
             collectionView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: 100),
+            collectionView.heightAnchor.constraint(equalToConstant: 100)
 //            collectionView.bottomAnchor.constraint(equalTo: mainView.bottomAnchor)
         ])
     }
@@ -248,6 +260,16 @@ class WeatherController: UIViewController {
             tableView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor, constant: -10),
             tableView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor, constant: 10),
             tableView.heightAnchor.constraint(equalToConstant: 340)
+        ])
+    }
+    
+    private func layoutDetailsView() {
+        NSLayoutConstraint.activate([
+            detailsView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 27),
+            detailsView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor, constant: -10),
+            detailsView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor, constant: 10),
+            detailsView.heightAnchor.constraint(equalToConstant: 270),
+            detailsView.bottomAnchor.constraint(equalTo: mainView.bottomAnchor)
         ])
     }
     
@@ -301,6 +323,10 @@ class WeatherController: UIViewController {
         mainInfoWeatherView.pressureLabel.text = "Preasure: \(pressure), hPa"
         mainInfoWeatherView.pressureLabel.addImageTest(image: UIImage(named: "preasure"))
         
+        guard let hourModel = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?.first else { return }
+        
+        detailsView.set(forecast: hourModel)
+        
     }
     
 }
@@ -311,6 +337,7 @@ extension WeatherController: CLLocationManagerDelegate {
         let locValue:CLLocationCoordinate2D = manager.location!.coordinate
         print("\(locValue.latitude), \(locValue.longitude)")
         viewModel.getForecastWeather(latLon: "\(locValue.latitude), \(locValue.longitude)", days: 1)
+        
     }
 }
 
