@@ -7,7 +7,6 @@
 
 import Foundation
 import Moya
-import Moya_ObjectMapper
 
 final class WeatherProvider {
     private let provider = MoyaProvider<WeatherAPI>(plugins: [NetworkLoggerPlugin()])
@@ -21,9 +20,7 @@ final class WeatherProvider {
         provider.request(.getForecastWeather(latLon: latLon, days: days)) { result in
             switch result {
                 case .success(let response):
-                    
                     guard let weather = try? JSONDecoder().decode(ForecastModel.self, from: response.data) else { return }
-                    print(weather)
                     comlition(weather)
                 case .failure(let error):
                     failure?(error)

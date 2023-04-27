@@ -11,9 +11,7 @@ import SDWebImage
 class InformationFilterCell: UICollectionViewCell {
     
     static var id = String(describing: InformationFilterCell.self)
-    
-    private var weatherData: ListWeatherModel?
-    
+        
     lazy var conteinerView: UIView = {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 100))
         view.backgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.1)
@@ -114,15 +112,18 @@ class InformationFilterCell: UICollectionViewCell {
         guard let url = weatherHourData.condition?.icon?.dropFirst(2) else { return }
         guard let time = weatherHourData.timeEpoch else { return }
         guard let temp = weatherHourData.tempC else { return }
-        
+
+        timeLabel.text = dateFormater(time: time)
+        temperatureLabel.text = "\(temp), °C"
+
+        imageViewWeather.sd_setImage(with: URL(string: String("https://" + url)))
+    }
+    
+    private func dateFormater(time: Int) -> String {
         let date = NSDate(timeIntervalSince1970: TimeInterval(time))
         let utcDateFormatter = DateFormatter()
         utcDateFormatter.timeStyle = .short
         let localDate = utcDateFormatter.string(from: date as Date)
-        
-        timeLabel.text = localDate
-        temperatureLabel.text = "\(temp), °C"
-
-        imageViewWeather.sd_setImage(with: URL(string: String("https://" + url)))
+        return localDate
     }
 }
