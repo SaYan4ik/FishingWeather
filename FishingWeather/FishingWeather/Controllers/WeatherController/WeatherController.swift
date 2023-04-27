@@ -153,6 +153,7 @@ class WeatherController: UIViewController {
         layoutDashLine()
         layoutMainInfoWeatherView()
         layoutCollectionView()
+        layoutTableView()
     }
     
     private func layoutScrollView() {
@@ -237,7 +238,16 @@ class WeatherController: UIViewController {
             collectionView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
             collectionView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor),
             collectionView.heightAnchor.constraint(equalToConstant: 100),
-            collectionView.bottomAnchor.constraint(equalTo: mainView.bottomAnchor)
+//            collectionView.bottomAnchor.constraint(equalTo: mainView.bottomAnchor)
+        ])
+    }
+    
+    private func layoutTableView() {
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 27),
+            tableView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor, constant: -10),
+            tableView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor, constant: 10),
+            tableView.heightAnchor.constraint(equalToConstant: 340)
         ])
     }
     
