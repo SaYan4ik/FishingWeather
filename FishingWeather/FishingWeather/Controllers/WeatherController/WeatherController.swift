@@ -104,13 +104,18 @@ class WeatherController: UIViewController {
     private var locationManager = CLLocationManager()
     private var cancellables: Set<AnyCancellable> = []
     private var viewModel: WeatherViewModel
-    private var selectedIndex = IndexPath(row: 0, section: 0)
-    
+
     private var forecastInfo: ForecastModel? {
         didSet {
             setupForecastInfo()
-            self.collectionView.reloadData()
             self.view.layoutIfNeeded()
+        }
+    }
+    
+    private var selectedIndex = IndexPath(row: 0, section: 0) {
+        didSet {
+            guard let hourModel = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?[selectedIndex.row] else { return }
+            detailsView.set(forecast: hourModel)
         }
     }
     
@@ -333,9 +338,8 @@ class WeatherController: UIViewController {
         mainInfoWeatherView.pressureLabel.text = "Preasure: \(pressure), hPa"
         mainInfoWeatherView.pressureLabel.addImageTest(image: UIImage(named: "preasure"))
         
-        guard let hourModel = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?[selectedIndex.row] else { return }
-        
-        detailsView.set(forecast: hourModel)
+//        guard let hourModel = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?[selectedIndex.row] else { return }
+//        detailsView.set(forecast: hourModel)
         
     }
     
@@ -387,6 +391,6 @@ extension WeatherController: UICollectionViewDataSource {
 
 extension WeatherController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let hourDate = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast else { return }
+//        guard let hourDate = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast else { return }
     }
 }

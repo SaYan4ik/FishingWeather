@@ -71,7 +71,15 @@ class DetailsView: UIView {
     }()
     
     private var labelsName: [LabelName] = LabelName.allCases
-    private var paramsForecast: [String] = []
+    private var paramsForecast: [String] = [] {
+        didSet {
+            if paramsForecast.count == 4 {
+                paramsForecast.forEach { param in
+                    cerateParamsLabel(param: param)
+                }
+            }
+        }
+    }
     private var hourForecast: HourForecastModel?
     
     
@@ -82,14 +90,6 @@ class DetailsView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        paramsForecast.forEach { param in
-            cerateParamsLabel(param: param)
-        }
     }
     
     private func layoutElements() {
@@ -183,6 +183,7 @@ class DetailsView: UIView {
         
         self.describeLabel.text = "Now - \(condition). Wind direction \(windDir) with \(wind), Mph."
         weatherImageView.sd_setImage(with: URL(string: String("https:" + url)))
+
     }
     
     private func setupData() {
@@ -190,6 +191,7 @@ class DetailsView: UIView {
             createNameLabels(paramsNameLabel: name.title)
         }
     }
+    
     
 }
 
