@@ -94,7 +94,7 @@ class WeatherController: UIViewController {
     }()
     
     lazy var detailsView: DetailsView = {
-        let view = DetailsView()
+        let view = DetailsView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 20
         view.clipsToBounds = true
@@ -108,29 +108,28 @@ class WeatherController: UIViewController {
     private var forecastInfo: ForecastModel? {
         didSet {
             setupForecastInfo()
+            collectionView.reloadData()
             self.view.layoutIfNeeded()
         }
     }
     
-    private var selectedIndex = IndexPath(row: 0, section: 0) {
-        didSet {
-            guard let hourModel = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?[selectedIndex.row] else { return }
-            detailsView.set(forecast: hourModel)
-        }
-    }
+    private var selectedIndex = IndexPath(row: 0, section: 0)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         layoutElements()
         bindViewModel()
         setupMyLocationCoord()
+
+        
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         setViewColor()
         showCurrentHourDetails()
-        scrollCollectionView()
+
+        
     }
     
     init(viewModel: WeatherViewModel) {
@@ -259,7 +258,6 @@ class WeatherController: UIViewController {
             collectionView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
             collectionView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor),
             collectionView.heightAnchor.constraint(equalToConstant: 100)
-//            collectionView.bottomAnchor.constraint(equalTo: mainView.bottomAnchor)
         ])
     }
     
@@ -294,7 +292,7 @@ class WeatherController: UIViewController {
             guard let self else { return }
             self.titleLabel.text = text
         }.store(in: &cancellables)
-        
+                
         viewModel.$forecastWeather.sink { [weak self] forecast in
             guard let self else { return }
             self.forecastInfo = forecast
@@ -338,9 +336,9 @@ class WeatherController: UIViewController {
         mainInfoWeatherView.pressureLabel.text = "Preasure: \(pressure), hPa"
         mainInfoWeatherView.pressureLabel.addImageTest(image: UIImage(named: "preasure"))
         
-//        guard let hourModel = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?[selectedIndex.row] else { return }
-//        detailsView.set(forecast: hourModel)
-        
+        guard let hourModel = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?[selectedIndex.row] else { return }
+        detailsView.set(forecast: hourModel)
+        scrollCollectionView()
     }
     
     private func scrollCollectionView() {
@@ -391,6 +389,10 @@ extension WeatherController: UICollectionViewDataSource {
 
 extension WeatherController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        guard let hourDate = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast else { return }
+        guard let hourDate = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast else { return }
+
+        viewModel.setupForecast(index: indexPath.row)
+        detailsView.set(forecast: hourDate[indexPath.row])
+        print("Tap")
     }
 }

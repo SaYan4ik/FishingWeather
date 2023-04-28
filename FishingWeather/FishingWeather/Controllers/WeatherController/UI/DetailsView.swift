@@ -73,7 +73,12 @@ class DetailsView: UIView {
     private var labelsName: [LabelName] = LabelName.allCases
     private var paramsForecast: [String] = [] {
         didSet {
+            self.layoutIfNeeded()
             if paramsForecast.count == 4 {
+                paramsLabelStack.subviews.forEach { label in
+                   label.removeFromSuperview()
+                }
+                
                 paramsForecast.forEach { param in
                     cerateParamsLabel(param: param)
                 }
@@ -162,7 +167,11 @@ class DetailsView: UIView {
         paramLabel.text = param
         paramLabel.textColor = .white
         paramLabel.font = .systemFont(ofSize: 12)
+        
+        
         self.paramsLabelStack.addArrangedSubview(paramLabel)
+        
+        
     }
     
     func set(forecast: HourForecastModel) {
@@ -176,6 +185,7 @@ class DetailsView: UIView {
               let url = forecast.condition?.icon
         else { return }
         
+        paramsForecast.removeAll()
         paramsForecast.append("\(feelsLike)")
         paramsForecast.append("\(humidity)")
         paramsForecast.append("\(preassure)")
@@ -184,6 +194,7 @@ class DetailsView: UIView {
         self.describeLabel.text = "Now - \(condition). Wind direction \(windDir) with \(wind), Mph."
         weatherImageView.sd_setImage(with: URL(string: String("https:" + url)))
 
+        
     }
     
     private func setupData() {

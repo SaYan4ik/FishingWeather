@@ -25,6 +25,7 @@ class WeatherViewModel {
         setCurrentLocationName()
     }
     
+    
     func getForecastWeather(latLon: String, days: Int) {
         self.weatherProvider.getForecastWeather(latLon: latLon, days: days) { [weak self] forecastResult in
             guard let self else { return }
@@ -67,7 +68,7 @@ class WeatherViewModel {
     }
     
     func setupForecast(index: Int) {
-        
+        selectedIndex = IndexPath(row: index, section: 0)
     }
     
     private func dataFormater() -> String {
