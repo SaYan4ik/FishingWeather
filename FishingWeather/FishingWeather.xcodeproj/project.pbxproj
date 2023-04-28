@@ -25,6 +25,7 @@
 		A22C503B29DC658B00BF607F /* WeatherController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A22C503A29DC658B00BF607F /* WeatherController.swift */; };
 		A22C503D29DC66C900BF607F /* WeatherViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A22C503C29DC66C900BF607F /* WeatherViewModel.swift */; };
 		A22C504129DCA43E00BF607F /* StartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A22C504029DCA43E00BF607F /* StartViewController.swift */; };
+		A25EEBEF29FA71830001F63E /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25EEBEE29FA71830001F63E /* DetailsView.swift */; };
 		A2B7C8E829EEBB7D007D9267 /* TodayWeatherInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B7C8E729EEBB7D007D9267 /* TodayWeatherInformationView.swift */; };
 		A2B7C8EC29EFAD11007D9267 /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B7C8EB29EFAD11007D9267 /* UIImage+Extension.swift */; };
 		A2B7C8F029EFBD78007D9267 /* MainWeatherInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B7C8EF29EFBD77007D9267 /* MainWeatherInfoView.swift */; };
@@ -53,6 +54,7 @@
 		A22C503A29DC658B00BF607F /* WeatherController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherController.swift; sourceTree = "<group>"; };
 		A22C503C29DC66C900BF607F /* WeatherViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherViewModel.swift; sourceTree = "<group>"; };
 		A22C504029DCA43E00BF607F /* StartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewController.swift; sourceTree = "<group>"; };
+		A25EEBEE29FA71830001F63E /* DetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsView.swift; sourceTree = "<group>"; };
 		A2B7C8E729EEBB7D007D9267 /* TodayWeatherInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayWeatherInformationView.swift; sourceTree = "<group>"; };
 		A2B7C8EB29EFAD11007D9267 /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
 		A2B7C8EF29EFBD77007D9267 /* MainWeatherInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWeatherInfoView.swift; sourceTree = "<group>"; };
@@ -258,11 +260,27 @@
 			path = StartController;
 			sourceTree = "<group>";
 		};
+		A25EEBDA29FA60620001F63E /* CollectionViewCells */ = {
+			isa = PBXGroup;
+			children = (
+				A2EDC99A29DD6F3600A89010 /* InformationFilterCell.swift */,
+			);
+			path = CollectionViewCells;
+			sourceTree = "<group>";
+		};
+		A25EEBDB29FA606F0001F63E /* TableViewCells */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = TableViewCells;
+			sourceTree = "<group>";
+		};
 		A2B7C8EE29EFB84A007D9267 /* UI */ = {
 			isa = PBXGroup;
 			children = (
 				A2B7C8E729EEBB7D007D9267 /* TodayWeatherInformationView.swift */,
 				A2B7C8EF29EFBD77007D9267 /* MainWeatherInfoView.swift */,
+				A25EEBEE29FA71830001F63E /* DetailsView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -270,7 +288,8 @@
 		A2EDC99929DD6F0E00A89010 /* Cells */ = {
 			isa = PBXGroup;
 			children = (
-				A2EDC99A29DD6F3600A89010 /* InformationFilterCell.swift */,
+				A25EEBDB29FA606F0001F63E /* TableViewCells */,
+				A25EEBDA29FA60620001F63E /* CollectionViewCells */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -399,6 +418,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A22C502B29DC39E900BF607F /* Constants.swift in Sources */,
+				A25EEBEF29FA71830001F63E /* DetailsView.swift in Sources */,
 				A22C501129DC2E5700BF607F /* ViewController.swift in Sources */,
 				A2B7C8EC29EFAD11007D9267 /* UIImage+Extension.swift in Sources */,
 				A2034ED929DD842800A192AC /* Environment.swift in Sources */,
@@ -564,6 +584,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W25G72CSZW;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FishingWeather/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -592,6 +613,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W25G72CSZW;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FishingWeather/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

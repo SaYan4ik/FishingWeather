@@ -17,7 +17,7 @@ class MainWeatherInfoView: UIView {
     
     lazy var rainLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .systemGray5
+        label.textColor = UIColor(red: 0.608, green: 0.618, blue: 0.678, alpha: 1)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 10, weight: .regular)
@@ -27,7 +27,7 @@ class MainWeatherInfoView: UIView {
     
     lazy var windLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .systemGray5
+        label.textColor = UIColor(red: 0.608, green: 0.618, blue: 0.678, alpha: 1)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 10, weight: .regular)
@@ -36,7 +36,7 @@ class MainWeatherInfoView: UIView {
     
     lazy var humiditiLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .systemGray5
+        label.textColor = UIColor(red: 0.608, green: 0.618, blue: 0.678, alpha: 1)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 10, weight: .regular)
@@ -45,7 +45,7 @@ class MainWeatherInfoView: UIView {
     
     lazy var pressureLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .systemGray5
+        label.textColor = UIColor(red: 0.608, green: 0.618, blue: 0.678, alpha: 1)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 10, weight: .regular)
