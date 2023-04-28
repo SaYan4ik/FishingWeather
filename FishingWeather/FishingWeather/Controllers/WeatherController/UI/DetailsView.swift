@@ -66,6 +66,7 @@ class DetailsView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 10)
         label.textColor = .systemGray5
+        label.textColor = UIColor(red: 0.608, green: 0.618, blue: 0.678, alpha: 1)
         return label
     }()
     
@@ -83,6 +84,14 @@ class DetailsView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        paramsForecast.forEach { param in
+            cerateParamsLabel(param: param)
+        }
+    }
+    
     private func layoutElements() {
         self.addSubview(conteinerView)
         self.conteinerView.addSubviews(nameLabel, weatherImageView, stackContainer, describeLabel)
@@ -94,6 +103,7 @@ class DetailsView: UIView {
         layoutWeatherImageView()
         layoutStackViewContainer()
         layoutDescribeLabel()
+        setupData()
     }
     
     private func layoutContainerView() {
@@ -171,8 +181,6 @@ class DetailsView: UIView {
         paramsForecast.append("\(preassure)")
         paramsForecast.append("\(wind)")
         
-        setupData()
-        
         self.describeLabel.text = "Now - \(condition). Wind direction \(windDir) with \(wind), Mph."
         weatherImageView.sd_setImage(with: URL(string: String("https:" + url)))
     }
@@ -180,10 +188,6 @@ class DetailsView: UIView {
     private func setupData() {
         labelsName.forEach { name in
             createNameLabels(paramsNameLabel: name.title)
-        }
-        
-        paramsForecast.forEach { param in
-            cerateParamsLabel(param: param)
         }
     }
     

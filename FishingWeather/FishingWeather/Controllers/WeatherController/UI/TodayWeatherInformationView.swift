@@ -71,7 +71,7 @@ class TodayWeatherInformationView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12)
-        label.textColor = .systemGray4
+        label.textColor = UIColor(red: 0.608, green: 0.618, blue: 0.678, alpha: 1)
         label.textAlignment = .center
         return label
     }()

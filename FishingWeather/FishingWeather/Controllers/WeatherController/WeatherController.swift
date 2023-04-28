@@ -54,10 +54,12 @@ class WeatherController: UIViewController {
     lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
+        
         layout.itemSize = CGSize(width: 60, height: 100)
         let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.dataSource = self
+        collectionView.delegate = self
         collectionView.showsVerticalScrollIndicator = false
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.backgroundColor = .clear
@@ -102,6 +104,7 @@ class WeatherController: UIViewController {
     private var locationManager = CLLocationManager()
     private var cancellables: Set<AnyCancellable> = []
     private var viewModel: WeatherViewModel
+    private var selectedIndex = IndexPath(row: 0, section: 0)
     
     private var forecastInfo: ForecastModel? {
         didSet {
@@ -284,11 +287,18 @@ class WeatherController: UIViewController {
         viewModel.$navTitle.sink { [weak self] text in
             guard let self else { return }
             self.titleLabel.text = text
+            print(text)
         }.store(in: &cancellables)
         
         viewModel.$forecastWeather.sink { [weak self] forecast in
             guard let self else { return }
             self.forecastInfo = forecast
+        }.store(in: &cancellables)
+        
+        viewModel.$selectedIndex.sink { [weak self] index in
+            guard let self else { return }
+            self.selectedIndex = index
+            self.collectionView.reloadData()
         }.store(in: &cancellables)
     }
 
@@ -323,10 +333,16 @@ class WeatherController: UIViewController {
         mainInfoWeatherView.pressureLabel.text = "Preasure: \(pressure), hPa"
         mainInfoWeatherView.pressureLabel.addImageTest(image: UIImage(named: "preasure"))
         
-        guard let hourModel = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?.first else { return }
+        guard let hourModel = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?[selectedIndex.row] else { return }
         
         detailsView.set(forecast: hourModel)
         
+    }
+    
+    private func scrollCollectionView() {
+        collectionView.layoutIfNeeded()
+        collectionView.scrollToItem(at: IndexPath(item: selectedIndex.row, section: 0), at: [], animated: false)
+
     }
     
 }
@@ -352,10 +368,16 @@ extension WeatherController: UICollectionViewDataSource {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InformationFilterCell.id, for: indexPath)
         guard let infoCell = cell as? InformationFilterCell else { return cell}
         guard let hourDate = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast else { return cell}
-        
+        infoCell.isSelected = selectedIndex == indexPath
+
         infoCell.set(weatherHourData: hourDate[indexPath.row])
         
         return infoCell
     }
 }
 
+extension WeatherController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let hourDate = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast else { return }
+    }
+}

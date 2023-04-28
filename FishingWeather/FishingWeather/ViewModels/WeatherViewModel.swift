@@ -12,6 +12,7 @@ import Combine
 class WeatherViewModel {
     @Published private(set) var navTitle: String = ""
     @Published private(set) var forecastWeather: ForecastModel?
+    @Published private(set) var selectedIndex = IndexPath(item: 0, section: 0)
     
     let weatherProvider: WeatherProvider
     private var locationManager = CLLocationManager()
@@ -27,6 +28,7 @@ class WeatherViewModel {
     func getForecastWeather(latLon: String, days: Int) {
         self.weatherProvider.getForecastWeather(latLon: latLon, days: days) { forecastResult in
             self.forecastWeather = forecastResult
+            
         }
     }
     
@@ -52,6 +54,27 @@ class WeatherViewModel {
         }
     }
     
+    func setupNowForecast(weatherForecast: [HourForecastModel]) {
+        weatherForecast.forEach { timeForecast in
+            guard timeForecast.time != nil else { return }
+            
+            if let index = weatherForecast.firstIndex(where: {$0.time == "\(dataFormater())"}) {
+                selectedIndex = IndexPath(item: index, section: 0)
+            }
+        }
+    }
+    
+    func setupForecast(index: Int) {
+        
+    }
+    
+    private func dataFormater() -> String {
+        let mytime = Date()
+        let format = DateFormatter()
+        format.dateFormat = "yyyy-MM-dd HH:00"
+        let myTime = format.string(from: mytime)
+        return "\(myTime)"
+    }
     
 }
 
