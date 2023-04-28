@@ -26,20 +26,22 @@ class WeatherViewModel {
     }
     
     func getForecastWeather(latLon: String, days: Int) {
-        self.weatherProvider.getForecastWeather(latLon: latLon, days: days) { forecastResult in
+        self.weatherProvider.getForecastWeather(latLon: latLon, days: days) { [weak self] forecastResult in
+            guard let self else { return }
             self.forecastWeather = forecastResult
             
         }
     }
     
-    func setCurrentLocationName() {
+    private func setCurrentLocationName() {
         self.currentLocation = locationManager.location
         guard let currentLocation = self.currentLocation else {
             print("Unable to reverse-geocode location.")
             return
         }
         
-        geocoder.reverseGeocodeLocation(currentLocation) { (placemarks, error) in
+        geocoder.reverseGeocodeLocation(currentLocation) { [weak self] (placemarks, error) in
+            guard let self else { return }
             if let error = error {
                 print(error)
             }

@@ -121,10 +121,11 @@ class WeatherController: UIViewController {
         setupMyLocationCoord()
     }
     
-    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         setViewColor()
+        showCurrentHourDetails()
+        scrollCollectionView()
     }
     
     init(viewModel: WeatherViewModel) {
@@ -287,7 +288,6 @@ class WeatherController: UIViewController {
         viewModel.$navTitle.sink { [weak self] text in
             guard let self else { return }
             self.titleLabel.text = text
-            print(text)
         }.store(in: &cancellables)
         
         viewModel.$forecastWeather.sink { [weak self] forecast in
@@ -340,9 +340,18 @@ class WeatherController: UIViewController {
     }
     
     private func scrollCollectionView() {
-        collectionView.layoutIfNeeded()
-        collectionView.scrollToItem(at: IndexPath(item: selectedIndex.row, section: 0), at: [], animated: false)
-
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            if self.forecastInfo != nil {
+                self.collectionView.layoutIfNeeded()
+                self.collectionView.scrollToItem(at: IndexPath(item: self.selectedIndex.row, section: 0), at: .left, animated: false)
+            }
+        }
+    }
+    
+    private func showCurrentHourDetails() {
+        guard let hourDate = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast else { return }
+        viewModel.setupNowForecast(weatherForecast: hourDate)
     }
     
 }
