@@ -10,6 +10,7 @@ import CoreLocation
 import Combine
 import SDWebImage
 
+
 class WeatherController: UIViewController {
 
     lazy var scrollView: UIScrollView = {
@@ -105,16 +106,6 @@ class WeatherController: UIViewController {
     private var cancellables: Set<AnyCancellable> = []
     private var viewModel: WeatherViewModel
 
-    private var forecastInfo: ForecastModel? {
-        didSet {
-            setupForecastInfo()
-            collectionView.reloadData()
-            self.view.layoutIfNeeded()
-        }
-    }
-    
-    private var selectedIndex = IndexPath(row: 0, section: 0)
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         layoutElements()
@@ -128,8 +119,6 @@ class WeatherController: UIViewController {
         super.viewDidLayoutSubviews()
         setViewColor()
         showCurrentHourDetails()
-
-        
     }
     
     init(viewModel: WeatherViewModel) {
@@ -293,30 +282,33 @@ class WeatherController: UIViewController {
             self.titleLabel.text = text
         }.store(in: &cancellables)
                 
-        viewModel.$forecastWeather.sink { [weak self] forecast in
+        viewModel.$forecastWeather.receive(on: DispatchQueue.main).sink { [weak self] forecast in
             guard let self else { return }
-            self.forecastInfo = forecast
+            guard let forecast else { return }
+            
+            setupForecastInfo(forecast: forecast)
+            collectionView.reloadData()
+            self.view.layoutIfNeeded()
         }.store(in: &cancellables)
-        
-        viewModel.$selectedIndex.sink { [weak self] index in
+            
+        viewModel.$selectedIndex.receive(on: DispatchQueue.main).sink { [weak self] index in
             guard let self else { return }
-            self.selectedIndex = index
             self.collectionView.reloadData()
         }.store(in: &cancellables)
     }
 
     
-    private func setupForecastInfo() {
-        guard let maxTemp = forecastInfo?.forecastday?.forecastDay?.first?.day?.maxTempC,
-              let minTemp = forecastInfo?.forecastday?.forecastDay?.first?.day?.minTempC,
-              let feelsLike = forecastInfo?.current?.feelsLikeC,
-              let currentTemp = forecastInfo?.current?.tempC,
-              let hummidity = forecastInfo?.current?.humidity,
-              let pressure = forecastInfo?.current?.preassureMph,
-              let windSpeed = forecastInfo?.current?.windMph,
-              let description = forecastInfo?.current?.condition?.text,
-              let rainCnahse = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?.first?.chanceOfRain,
-              let url = forecastInfo?.current?.condition?.icon?.dropFirst(2)
+    private func setupForecastInfo(forecast: ForecastModel) {
+        guard let maxTemp = forecast.forecastday?.forecastDay?.first?.day?.maxTempC,
+              let minTemp = forecast.forecastday?.forecastDay?.first?.day?.minTempC,
+              let feelsLike = forecast.current?.feelsLikeC,
+              let currentTemp = forecast.current?.tempC,
+              let hummidity = forecast.current?.humidity,
+              let pressure = forecast.current?.preassureMph,
+              let windSpeed = forecast.current?.windMph,
+              let description = forecast.current?.condition?.text,
+              let rainCnahse = forecast.forecastday?.forecastDay?.first?.hourForecast?.first?.chanceOfRain,
+              let url = forecast.current?.condition?.icon?.dropFirst(2)
         else { return }
         
         todayInfoView.weatherImageView.sd_setImage(with: URL(string: String("https://" + url)))
@@ -335,8 +327,8 @@ class WeatherController: UIViewController {
         
         mainInfoWeatherView.pressureLabel.text = "Preasure: \(pressure), hPa"
         mainInfoWeatherView.pressureLabel.addImageTest(image: UIImage(named: "preasure"))
-        
-        guard let hourModel = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?[selectedIndex.row] else { return }
+                
+        guard let hourModel = forecast.forecastday?.forecastDay?.first?.hourForecast?[viewModel.selectedIndex.row] else { return }
         detailsView.set(forecast: hourModel)
         scrollCollectionView()
     }
@@ -344,15 +336,15 @@ class WeatherController: UIViewController {
     private func scrollCollectionView() {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            if self.forecastInfo != nil {
+            if viewModel.forecastWeather != nil {
                 self.collectionView.layoutIfNeeded()
-                self.collectionView.scrollToItem(at: IndexPath(item: self.selectedIndex.row, section: 0), at: .left, animated: false)
+                self.collectionView.scrollToItem(at: IndexPath(item: viewModel.selectedIndex.row, section: 0), at: .left, animated: false)
             }
         }
     }
-    
+
     private func showCurrentHourDetails() {
-        guard let hourDate = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast else { return }
+        guard let hourDate = viewModel.forecastWeather?.forecastday?.forecastDay?.first?.hourForecast else { return }
         viewModel.setupNowForecast(weatherForecast: hourDate)
     }
     
@@ -370,16 +362,16 @@ extension WeatherController: CLLocationManagerDelegate {
 
 extension WeatherController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-
-        guard let numberOfCells = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast?.count else { return 0}
-        return numberOfCells
+        guard let numbersCells = viewModel.forecastWeather?.forecastday?.forecastDay?.first?.hourForecast?.count else { return 0}
+        
+        return numbersCells
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InformationFilterCell.id, for: indexPath)
         guard let infoCell = cell as? InformationFilterCell else { return cell}
-        guard let hourDate = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast else { return cell}
-        infoCell.isSelected = selectedIndex == indexPath
+        guard let hourDate = viewModel.forecastWeather?.forecastday?.forecastDay?.first?.hourForecast else { return cell}
+        infoCell.isSelected = viewModel.selectedIndex == indexPath
 
         infoCell.set(weatherHourData: hourDate[indexPath.row])
         
@@ -389,7 +381,7 @@ extension WeatherController: UICollectionViewDataSource {
 
 extension WeatherController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let hourDate = forecastInfo?.forecastday?.forecastDay?.first?.hourForecast else { return }
+        guard let hourDate = viewModel.forecastWeather?.forecastday?.forecastDay?.first?.hourForecast else { return }
 
         viewModel.setupForecast(index: indexPath.row)
         detailsView.set(forecast: hourDate[indexPath.row])

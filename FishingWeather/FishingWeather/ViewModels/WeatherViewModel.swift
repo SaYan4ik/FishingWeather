@@ -14,6 +14,10 @@ class WeatherViewModel {
     @Published private(set) var forecastWeather: ForecastModel?
     @Published private(set) var selectedIndex = IndexPath(item: 0, section: 0)
     
+    private var cancellables: Set<AnyCancellable> = []
+
+    
+    
     let weatherProvider: WeatherProvider
     private var locationManager = CLLocationManager()
     private var geocoder = CLGeocoder()
@@ -23,6 +27,11 @@ class WeatherViewModel {
     init(weatherProvider: WeatherProvider) {
         self.weatherProvider = weatherProvider
         setCurrentLocationName()
+    }
+    
+    func reciveData() {
+        
+            
     }
     
     
